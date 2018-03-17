@@ -35,6 +35,8 @@ export default class ImageItem {
   init() {
     this.loadImage();
     this.render();
+    // this.changeAfterSecond();
+    this.clip();
   }
 
   render() {
@@ -42,11 +44,27 @@ export default class ImageItem {
         this.drawImage();
     }
     this.drawThumbtack();
-    this.clip();
   }
 
-  changeShape(position: ActionPosition) {
-    this.ctx.clearRect(0, 0, 300, 300);
+  // changeAfterSecond() {
+  //   setTimeout(
+  //     () => {
+  //       this.ctx.restore();
+  //       this.ctx.clearRect(0, 0, 300, 600);
+  //       this.imageConfig.shape = [
+  //         {x: 20, y: 20},
+  //         {x: 220, y: 20},
+  //         {x: 220, y: 220},
+  //         {x: 220, y: 220},
+  //       ];
+  //       this.clip();
+  //       this.render();
+  //     },
+  //     3000,
+  //   );
+  // }
+
+  changeShape(position: ActionPosition) {    
     const { start, move, end } = position;
     if (start) {
       const {x, y} = start;
@@ -58,33 +76,29 @@ export default class ImageItem {
           ((curAxisX - curThumbtack.x) ** 2 + (curAxisY - curThumbtack.y) ** 2) < this.thumbtackRadius ** 2
         ) {
           this.movingThumbtackIndex = i;
-          return;
         }
       }
     }
+    if (this.movingThumbtackIndex == null) {
+      return;
+    }
+    this.ctx.restore();
+    this.ctx.clearRect(0, 0, 300, 600);
     if (move) {
-      if (this.movingThumbtackIndex === null) {
-        return;
-      } else {
-        this.imageConfig.shape[this.movingThumbtackIndex] = {
-          x: move.x - this.axisOrigin.x,
-          y: move.y - this.axisOrigin.y,
-        };
-        return;
-      }
+      this.imageConfig.shape[this.movingThumbtackIndex] = {
+        x: move.x - this.axisOrigin.x,
+        y: move.y - this.axisOrigin.y,
+      };
     }
     if (end) {
-      if (this.movingThumbtackIndex === null) {
-        return;
-      } else {
-        this.imageConfig.shape[this.movingThumbtackIndex] = {
-          x: end.x - this.axisOrigin.x,
-          y: end.y - this.axisOrigin.y,
-        };
-        this.movingThumbtackIndex = null;
-        return;
-      }
+      this.imageConfig.shape[this.movingThumbtackIndex] = {
+        x: end.x - this.axisOrigin.x,
+        y: end.y - this.axisOrigin.y,
+      };
+      this.movingThumbtackIndex = null;
     }
+
+    this.clip();
   }
 
   private drawThumbtack() {
@@ -107,7 +121,8 @@ export default class ImageItem {
         this.ctx.lineTo(x, y);
       }
       this.ctx.closePath();
-      // this.ctx.stroke();
+      this.ctx.stroke();
+      this.ctx.save();
       this.ctx.clip();
     }
   }

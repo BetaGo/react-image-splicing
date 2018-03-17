@@ -21,7 +21,7 @@ class Scene extends React.Component<SceneProps> {
       {x: box.left, y: box.top},
       {
         position: {x: 0, y: 0},
-        shape: [{x: 150, y: 20}, {x: 30, y: 300}, {x: 150, y: 600}],
+        shape: [{x: 150, y: 20}, {x: 30, y: 300}, {x: 150, y: 600}, {x: 0, y: 0}],
         imgSrc: src,
       },
     );
