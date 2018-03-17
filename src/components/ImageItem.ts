@@ -23,7 +23,6 @@ export default class ImageItem {
   ctx: CanvasRenderingContext2D;
   movingThumbtackIndex: number | null = null; 
 
-  // private isMoving = false;
   private thumbtackRadius = 20;
 
   constructor(ctx: CanvasRenderingContext2D, canvasAxisOrigin: Position, config: ImageItemConfig) {
@@ -35,7 +34,6 @@ export default class ImageItem {
   init() {
     this.loadImage();
     this.render();
-    // this.changeAfterSecond();
     this.clip();
   }
 
@@ -46,25 +44,7 @@ export default class ImageItem {
     this.drawThumbtack();
   }
 
-  // changeAfterSecond() {
-  //   setTimeout(
-  //     () => {
-  //       this.ctx.restore();
-  //       this.ctx.clearRect(0, 0, 300, 600);
-  //       this.imageConfig.shape = [
-  //         {x: 20, y: 20},
-  //         {x: 220, y: 20},
-  //         {x: 220, y: 220},
-  //         {x: 220, y: 220},
-  //       ];
-  //       this.clip();
-  //       this.render();
-  //     },
-  //     3000,
-  //   );
-  // }
-
-  changeShape(position: ActionPosition) {    
+  changeShape(position: ActionPosition) {
     const { start, move, end } = position;
     if (start) {
       const {x, y} = start;
