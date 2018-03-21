@@ -33,8 +33,8 @@ export default class ImageItem {
 
   init() {
     this.loadImage();
-    this.render();
-    this.clip();
+    // this.render();
+    // this.drawClipPath();
   }
 
   render() {
@@ -62,8 +62,6 @@ export default class ImageItem {
     if (this.movingThumbtackIndex == null) {
       return;
     }
-    this.ctx.restore();
-    this.ctx.clearRect(0, 0, 300, 600);
     if (move) {
       this.imageConfig.shape[this.movingThumbtackIndex] = {
         x: move.x - this.axisOrigin.x,
@@ -77,11 +75,34 @@ export default class ImageItem {
       };
       this.movingThumbtackIndex = null;
     }
-
-    this.clip();
   }
 
-  private drawThumbtack() {
+  drawClipPath() {
+    const { shape } = this.imageConfig;
+    if (shape && shape.length > 2) {
+      this.ctx.moveTo(shape[0].x, shape[0].y);
+      for (let i = 1; i < shape.length; i++) {
+        const {x, y} = shape[i];
+        this.ctx.lineTo(x, y);
+      }
+      this.ctx.lineTo(shape[0].x, shape[0].y);
+      // TODO: stroke是为了开发时方便查看边界， 使用时删掉。
+      this.ctx.stroke();
+    }
+  }
+
+  drawImage() {
+    if (this.isLoadedImage) {
+      const { position } = this.imageConfig;
+      if (position) {
+        this.ctx.drawImage(this.image, position.x, position.y);
+      } else {
+        this.ctx.drawImage(this.image, 0, 0);
+      }
+    }
+  }
+
+  drawThumbtack() {
     const { shape } = this.imageConfig;
     shape.map((position) => {
       this.ctx.beginPath();
@@ -89,31 +110,6 @@ export default class ImageItem {
       this.ctx.fillStyle = 'rgba(0,0,0,0.6)';
       this.ctx.fill();
     });
-  }
-
-  private clip() {
-    const { shape } = this.imageConfig;
-    if (shape && shape.length > 2) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(shape[0].x, shape[0].y);
-      for (let i = 1; i < shape.length; i++) {
-        const {x, y} = shape[i];
-        this.ctx.lineTo(x, y);
-      }
-      this.ctx.closePath();
-      this.ctx.stroke();
-      this.ctx.save();
-      this.ctx.clip();
-    }
-  }
-
-  private drawImage() {
-    const { position } = this.imageConfig;
-    if (position) {
-      this.ctx.drawImage(this.image, position.x, position.y);
-    } else {
-      this.ctx.drawImage(this.image, 0, 0);
-    }
   }
 
   private loadImage() {
