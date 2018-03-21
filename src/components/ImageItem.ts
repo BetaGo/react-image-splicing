@@ -23,7 +23,6 @@ export default class ImageItem {
   ctx: CanvasRenderingContext2D;
   movingThumbtackIndex: number | null = null; 
 
-  // private isMoving = false;
   private thumbtackRadius = 20;
 
   constructor(ctx: CanvasRenderingContext2D, canvasAxisOrigin: Position, config: ImageItemConfig) {
@@ -33,10 +32,9 @@ export default class ImageItem {
   }
 
   init() {
-    this.loadImage();
-    this.render();
-    // this.changeAfterSecond();
-    this.clip();
+    return this.loadImage();
+    // this.render();
+    // this.drawClipPath();
   }
 
   render() {
@@ -46,25 +44,7 @@ export default class ImageItem {
     this.drawThumbtack();
   }
 
-  // changeAfterSecond() {
-  //   setTimeout(
-  //     () => {
-  //       this.ctx.restore();
-  //       this.ctx.clearRect(0, 0, 300, 600);
-  //       this.imageConfig.shape = [
-  //         {x: 20, y: 20},
-  //         {x: 220, y: 20},
-  //         {x: 220, y: 220},
-  //         {x: 220, y: 220},
-  //       ];
-  //       this.clip();
-  //       this.render();
-  //     },
-  //     3000,
-  //   );
-  // }
-
-  changeShape(position: ActionPosition) {    
+  changeShape(position: ActionPosition) {
     const { start, move, end } = position;
     if (start) {
       const {x, y} = start;
@@ -82,8 +62,6 @@ export default class ImageItem {
     if (this.movingThumbtackIndex == null) {
       return;
     }
-    this.ctx.restore();
-    this.ctx.clearRect(0, 0, 300, 600);
     if (move) {
       this.imageConfig.shape[this.movingThumbtackIndex] = {
         x: move.x - this.axisOrigin.x,
@@ -97,11 +75,34 @@ export default class ImageItem {
       };
       this.movingThumbtackIndex = null;
     }
-
-    this.clip();
   }
 
-  private drawThumbtack() {
+  drawClipPath() {
+    const { shape } = this.imageConfig;
+    if (shape && shape.length > 2) {
+      this.ctx.moveTo(shape[0].x, shape[0].y);
+      for (let i = 1; i < shape.length; i++) {
+        const {x, y} = shape[i];
+        this.ctx.lineTo(x, y);
+      }
+      this.ctx.lineTo(shape[0].x, shape[0].y);
+      // TODO: stroke是为了开发时方便查看边界， 使用时删掉。
+      this.ctx.stroke();
+    }
+  }
+
+  drawImage() {
+    if (this.isLoadedImage) {
+      const { position } = this.imageConfig;
+      if (position) {
+        this.ctx.drawImage(this.image, position.x, position.y);
+      } else {
+        this.ctx.drawImage(this.image, 0, 0);
+      }
+    }
+  }
+
+  drawThumbtack() {
     const { shape } = this.imageConfig;
     shape.map((position) => {
       this.ctx.beginPath();
@@ -111,38 +112,16 @@ export default class ImageItem {
     });
   }
 
-  private clip() {
-    const { shape } = this.imageConfig;
-    if (shape && shape.length > 2) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(shape[0].x, shape[0].y);
-      for (let i = 1; i < shape.length; i++) {
-        const {x, y} = shape[i];
-        this.ctx.lineTo(x, y);
-      }
-      this.ctx.closePath();
-      this.ctx.stroke();
-      this.ctx.save();
-      this.ctx.clip();
-    }
-  }
-
-  private drawImage() {
-    const { position } = this.imageConfig;
-    if (position) {
-      this.ctx.drawImage(this.image, position.x, position.y);
-    } else {
-      this.ctx.drawImage(this.image, 0, 0);
-    }
-  }
-
   private loadImage() {
-    const image = new Image();
-    image.src = this.imageConfig.imgSrc;
-    image.onload = () => {
-      this.isLoadedImage = true;
-      this.image = image;
-    };
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.src = this.imageConfig.imgSrc;
+      image.onload = () => {
+        this.isLoadedImage = true;
+        this.image = image;
+        resolve(Date.now());
+      };
+    });
   }
 
 }
