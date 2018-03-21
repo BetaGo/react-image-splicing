@@ -32,7 +32,7 @@ export default class ImageItem {
   }
 
   init() {
-    this.loadImage();
+    return this.loadImage();
     // this.render();
     // this.drawClipPath();
   }
@@ -113,12 +113,15 @@ export default class ImageItem {
   }
 
   private loadImage() {
-    const image = new Image();
-    image.src = this.imageConfig.imgSrc;
-    image.onload = () => {
-      this.isLoadedImage = true;
-      this.image = image;
-    };
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.src = this.imageConfig.imgSrc;
+      image.onload = () => {
+        this.isLoadedImage = true;
+        this.image = image;
+        resolve(Date.now());
+      };
+    });
   }
 
 }

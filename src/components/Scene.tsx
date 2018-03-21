@@ -56,13 +56,16 @@ class Scene extends React.Component<SceneProps> {
     )
   );
 
-    this.imageItemArr.forEach(item => {
-      item.init();
+    Promise.all(
+      this.imageItemArr.map(item => item.init())
+    ).then((value) => {
+      // tslint:disable-next-line
+      console.log('promise value: ', value);
+      this.canvasRender(ctx!);
+      ctx!.save();
+      this.canvasRender(ctx!, true);
+      this.startEventListener(ctx!, box);
     });
-
-    this.canvasRender(ctx!);
-
-    this.startEventListener(ctx!, box);
   }
 
   canvasRender = (ctx: CanvasRenderingContext2D, clip = false) => {

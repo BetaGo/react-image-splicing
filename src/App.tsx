@@ -8,7 +8,7 @@ class App extends React.Component {
       <div className="App">
         <Scene
           width={300}
-          height={600}
+          height={500}
           images={[
             'http://placeimg.com/640/480/tech',
             'http://placeimg.com/640/480/animals',
